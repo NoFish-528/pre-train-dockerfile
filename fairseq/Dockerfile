@@ -52,6 +52,8 @@ RUN conda create -n fairseq python=3.9 -y \
     && pip install gpustat \
     && pip install tensorboard \
     && pip install tensorboardX \
+    && pip install wanbd \
+    && pip install einops \
     && pip install soundfile \
     && apt-get install -y libsndfile1-dev \
     && cd / \
