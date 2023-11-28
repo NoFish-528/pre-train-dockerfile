@@ -2,6 +2,8 @@
 
 > Created by zym22 on 2021.12.20
 >
+> Updated by Zhikang Niu on 2023/11/28
+>
 > Based on SJTU-XLANCE Servers & Speech Pre-train Docker as examples. 
 
 
@@ -10,7 +12,7 @@
 
 1. Download extensions in VSCode. 
 
-<img src="Docker&Debug/image-20211220103747587.png" alt="image-20211220103747587" style="zoom: 50%;" />
+<img src="figures/image-20211220103747587.png" alt="image-20211220103747587" style="zoom: 50%;" />
 
 2. Set up config of multi-jumps. (For you need a jumping machine to get access the GPUs.) 
 
@@ -29,15 +31,15 @@ Host date
 
 3. Connect to the Server such as `date`. 
 
-<img src="Docker&Debug/image-20211220104838119.png" alt="image-20211220104838119" style="zoom:50%;" />
+<img src="figures/image-20211220104838119.png" alt="image-20211220104838119" style="zoom:50%;" />
 
 
 
 ## Set up Docker environment
 
-> Before take steps in this section, make sure your terminal is like `zym22@date:~$`.
+> Before take steps in this section, make sure your terminal is like `zhikangniu@xxxxxx:~$`.
 
-1. Set up Docker environment in `zym22@date:~$`.
+1. Set up Docker environment in `zhikangniu@xxxxxx:~$`.
 
 ```bash
 docker pull zkniu/fairseq:torch1.12-cu113-fairseq
@@ -50,16 +52,25 @@ docker exec -it fairseq /bin/bash
 
 2. Install docker extension in VSCODE
 
+   <img src="figures/docker.png" align="center" style="zoom:100%;" />
 
-5. Connect to the Docker. 
+3. Check docker container in your machine
 
-<img src="Docker&Debug/image-20211220112552697.png" alt="image-20211220112552697" style="zoom:50%;" />
+   if successfully, you will see the following interface.
 
+   > If you encounter some permission bug -> check : https://blog.csdn.net/weixin_44583856/article/details/120757864
 
+   <img src="./figures\image-20231128170017199.png" align="center" alt="image-20231128170017199" style="zoom:80%;" />
+
+​	
+
+4. connect your container
+
+   <img src="./figures\image-20231128171414530.png" alt="image-20231128171414530" style="zoom:80%;" />
 
 ## Debug using VSCode
 
-> Before take steps in this section, make sure your terminal is like `root@myDocker:~$`
+> Before take steps in this section, make sure your terminal is like `root@xxxxx:~$`
 
 1. Create a `launch.json` in `.vscode` folder.
 
@@ -92,39 +103,28 @@ pip install debugpy
 python -m debugpy --listen 5678 --wait-for-client main.py args
 # An example to debug wav2vec2.0 using fairseq.
 python -m debugpy --listen 5678 --wait-for-client ../miniconda3/envs/espnet/bin/fairseq-hydra-train task.data=examples/wav2vec/manifest --config-dir examples/wav2vec/config/pretraining --config-name wav2vec2_test_librispeech
+
+# you can also add alias in your .bashrc
+# alias pyd='python -m debugpy --wait-for-client --listen 5678'
+# pyd main.py args
+# pyd ../miniconda3/envs/espnet/bin/fairseq-hydra-train task.data=examples/wav2vec/manifest --config-dir examples/wav2vec/config/pretraining --config-name wav2vec2_test_librispeech
 ```
 
 3. Start debugging mode.
 
-<img src="Docker&Debug/image-20211220114021177.png" alt="image-20211220114021177" style="zoom:50%;" />
+<img src="figures/image-20211220114021177.png" alt="image-20211220114021177" style="zoom:50%;" />
 
-<img src="Docker&Debug/image-20211220114209393.png" alt="image-20211220114209393" style="zoom:50%;" />
+<img src="figures/image-20211220114209393.png" alt="image-20211220114209393" style="zoom:50%;" />
 
 
 
-## About the Speech Pre-train Docker (Latest tag: 20220218)
+## About the Speech Pre-train Docker (Latest tag: 2023/11/28)
 
-> A docker for Speech, compatible with Kaldi, Espnet and Fairseq.
+> A docker for Speech, compatible with fairseq.
 
-Basic environment：
+Basic environment：11.3.1-cudnn8-devel-ubuntu20.04
 
-- ubuntu=16.04 
-- cudnn=7 cuda=10.2 
-- python=3.8 torch=1.10.0 torchaudio=0.10.0 
-- condaenv=espnet 
-
-Basic Directory structure:
-
-```bash
-- root
-	- miniconda3
-	- .bashrc
-	- .profile
-- data
-	- zym22
-	- xc095
-- espnet
-- fairseq -> espnet/tools/fairseq
-- kaldi -> espnet/tools/kaldi
-```
-
+- ubuntu=20.04 
+- cudnn=8 cuda=11.3.1
+- python=3.9 torch=1.12.1 torchaudio=0.13.1
+- if you change the fairseq source code, you need to **pip install --editable ./**
