@@ -40,63 +40,16 @@ Host date
 1. Set up Docker environment in `zym22@date:~$`.
 
 ```bash
-docker pull zym22/pre-train:latest 
-docker run -it --runtime=nvidia --name myDocker \ # choose a name
-    --mount src=/mnt/xlancefs/home/zym22/data,target=/data/zym22,type=bind \ # access to your src
-    # -v /mnt/xlancefs/home/zym22:/home/zym22 \
-    -p 8023:22 \ # choose a port
-    --ipc=host    # host shares memory with the container
-    zym22/pre-train:latest /bin/bash
-docker start myDocker
-docker exec -it myDocker /bin/bash
+docker pull zkniu/fairseq:torch1.12-cu113-fairseq
+docker run -it --gpus all --name fairseq \
+    -v /home/v-zhikangniu:/root \
+    zkniu/fairseq:torch1.12-cu113-fairseq0.12 /bin/bash
+docker start fairseq
+docker exec -it fairseq /bin/bash
 ```
 
-2. Set up Docker environment in `root@myDocker:~$`.
+2. Install docker extension in VSCODE
 
-```bash
-passwd root
-apt update
-apt install -y openssh-server
-vim /etc/ssh/sshd_config
-###
-# edit here
-Port 22                     #Enabling Port 22
-PermitRootLogin yes         #Allow root user to log in using ssh
-RSAAuthentication yes       #Enabling RSA Authentication 
-PubkeyAuthentication yes    #Enable public-private key pairing Authentication
-# wq
-###
-service ssh restart
-exit
-```
-
-3. Verify that port mapping is correct. 
-
-```less
-zym22@date:~$ docker port myDocker 22
-0.0.0.0:8023
-```
-
-4. Edit local config at `~/.ssh/config`. 
-
-```bash
-# local at ~/.ssh/config
-Host gauss
-    HostName 202.xxx.xxx.xxx
-    Port 5566
-    User zym22
-Host date
-    HostName 192.xxx.xxx.xxx
-    # ProxyJump gauss
-    ProxyCommand ssh -A gauss -W %h:%p
-    User zym22
-Host myDocker
-    HostName 192.xxx.xxx.xxx # same as date
-    Port 8023
-    # ProxyJump gauss
-    ProxyCommand ssh -A gauss -W %h:%p
-    User root
-```
 
 5. Connect to the Docker. 
 
@@ -113,22 +66,21 @@ Host myDocker
 ```json
 # launch.json
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {// python -m debugpy --listen 5678 --wait-for-client main.py args
-            "name": "Python: attach local",
+        {
+            "name": "Python: Attach",
             "type": "python",
             "request": "attach",
-            "console": "integratedTerminal",
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "1" //edit
-            },
             "connect": {
-                "host": "localhost",
-                "port": 5678 //edit
-            }
-        }
-
+              "host": "localhost",
+              "port": 5678
+            },
+            "justMyCode": true,
+          }
     ]
 }
 ```

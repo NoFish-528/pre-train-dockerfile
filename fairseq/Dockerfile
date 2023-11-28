@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN set -x \
     && apt update \
-    && apt-get -y install wget curl man git less openssl libssl-dev unzip unar build-essential \
+    && apt-get -y install wget curl man git less openssl libssl-dev unzip unar build-essential aria2\
     && apt install -y openssh-server 
 
 RUN set -x \
@@ -30,7 +30,22 @@ ENV PATH /usr/local/cuda-11.3/bin:$PATH
 ENV CUDA_HOME /usr/local/cuda
 ENV LD_LIBRARY_PATH "/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH"
 
-# install conda and fairseq
+# install azcopy
+# RUN wget https://aka.ms/downloadazcopy-v10-linux \
+#     && tar -xvf downloadazcopy-v10-linux \
+#     && rm -f /usr/bin/azcopy \
+#     && cp ./azcopy_linux_amd64_*/azcopy /usr/bin/ \
+#     && chmod 755 /usr/bin/azcopy \
+#     && rm -f downloadazcopy-v10-linux \
+#     && rm -rf ./azcopy_linux_amd64_*/
+
+# # install blobfuse
+# RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+#     && dpkg -i packages-microsoft-prod.deb \
+#     && apt-get update \
+#     && apt-get install -y blobfuse
+    
+# install conda
 RUN cd /root \
     && wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
@@ -41,6 +56,7 @@ RUN cd /root \
 
 SHELL ["/bin/bash", "--login", "-c"]
 
+# install fairseq
 RUN conda create -n fairseq python=3.9 -y \
     && conda init bash \
     && conda activate fairseq \
@@ -51,9 +67,9 @@ RUN conda create -n fairseq python=3.9 -y \
     && pip install editdistance \
     && pip install gpustat \
     && pip install tensorboard \
-    && pip install tensorboardX \
-    && pip install wanbd \
+    && pip install wandb \
     && pip install einops \
+    && pip install debugpy \
     && pip install soundfile \
     && apt-get install -y libsndfile1-dev \
     && cd / \
