@@ -45,12 +45,12 @@ Host date
 docker pull zkniu/fairseq:torch1.12-cu113-fairseq
 docker run -it --gpus all --name fairseq \
     -v /home/v-zhikangniu:/root \
-    zkniu/fairseq:torch1.12-cu113-fairseq0.12 /bin/bash
+    zkniu/fairseq:torch1.12-cu113-fairseq /bin/bash
 docker start fairseq
 docker exec -it fairseq /bin/bash
 ```
 
-2. Install docker extension in VSCODE
+2. Install docker extension in VSCODE(Docker, Dev-container)
 
    <img src="figures/docker.png" align="center" style="zoom:100%;" />
 
