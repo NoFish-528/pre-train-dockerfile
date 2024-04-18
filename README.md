@@ -43,7 +43,8 @@ Host date
 
 ```bash
 docker pull zkniu/fairseq:torch1.12-cu113-fairseq
-docker run -it --gpus all --name fairseq \
+docker run -it --gpus all --name fairseq --shm-size=256g\
+    --mount src=/scratch,target=/data,type=bind \
     -v /home/v-zhikangniu:/root \
     zkniu/fairseq:torch1.12-cu113-fairseq /bin/bash
 docker start fairseq
