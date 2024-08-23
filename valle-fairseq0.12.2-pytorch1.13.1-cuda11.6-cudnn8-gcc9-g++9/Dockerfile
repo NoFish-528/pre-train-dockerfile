@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN set -x \
     && apt-get update \
-    && apt-get -y install wget curl pkg-config man git less openssl libssl-dev unzip unar build-essential aria2 tmux cmake vim ninja-build htop \
+    && apt-get -y install wget curl pkg-config man git less openssl libssl-dev unzip unar build-essential aria2 tmux cmake vim htop \
     && apt-get install -y openssh-server software-properties-common manpages-dev sox libsox-fmt-all libsox-fmt-mp3 libgoogle-perftools-dev libsndfile1-dev ffmpeg \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -33,7 +33,7 @@ RUN cd ${STAGE_DIR}/sentencepiece && \
     make install && \
     ldconfig -v
 
-RUN pip install --no-cache-dir packaging editdistance gpustat wandb einops debugpy tqdm soundfile matplotlib scipy sentencepiece pandas \
+RUN pip install --no-cache-dir packaging editdistance gpustat wandb einops debugpy tqdm soundfile matplotlib scipy ipdb sentencepiece pandas \
     && pip install torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116
 
 WORKDIR /workspace
@@ -49,7 +49,8 @@ ENV LD_LIBRARY_PATH "/usr/local/cuda-11.6/lib64:$LD_LIBRARY_PATH"
 
 RUN git clone https://github.com/NVIDIA/apex \
     && cd apex \
-    && pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+    && git checkout 9263bc8 \
+    && pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 
 ENV FORCE_CUDA="1"
 ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0"
@@ -59,6 +60,19 @@ RUN git clone https://github.com/facebookresearch/xformers \
     && git checkout tags/v0.0.20 \
     && git submodule update --init --recursive \
     && pip install --no-cache-dir -e .
+
+# Install OpenMPI
+RUN wget https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.5.tar.gz \
+    && tar xf openmpi-5.0.5.tar.gz \
+    && cd openmpi-5.0.5 \
+    && ./configure --prefix=/usr/local/openmpi \
+    && make -j 4 all \
+    && make install
+
+ENV MPI_HOME=/usr/local/openmpi
+ENV PATH=$MPI_HOME/bin:$PATH
+ENV LD_LIBRARY_PATH=$MPI_HOME/lib:$LD_LIBRARY_PATH
+ENV MANPATH=${MPI_HOME}/share/man:$MANPATH
 
 ENV SHELL=/bin/bash
 CMD [ "/bin/bash" ]
